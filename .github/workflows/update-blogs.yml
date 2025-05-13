@@ -1,0 +1,36 @@
+name: Update Blog List
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily auto-update at midnight UTC
+  workflow_dispatch:     # Manual trigger option
+
+jobs:
+  update-blogs:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout repo
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # 2. Update README.md with new blog links
+      - name: Add new blog entry
+        run: |
+          BLOG_TITLE="MySQL Connector Python Guide"
+          BLOG_URL="https://medium.com/@dhyaandk11/using-mysql-connector-python-for-mysql-database-management-in-python-b8e1c44a18fc?utm_source=github&utm_medium=blog-repo"
+          BLOG_TAGS="Python, MySQL"
+          
+          echo "| $(date +'%Y-%m-%d') | $BLOG_TITLE | $BLOG_TAGS | [Read]($BLOG_URL) |" >> README.md
+
+      # 3. Validate links
+      - name: Check links
+        uses: lycheeverse/lychee-action@v1.5.0
+        with:
+          args: --no-progress README.md
+
+      # 4. Push changes
+      - name: Commit updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📌 Auto-added blog link"
+          branch: main
